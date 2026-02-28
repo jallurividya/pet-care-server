@@ -34,22 +34,22 @@ app.use(cors({
 }));
 app.use(express.json())
 
-app.use("/api/auth", _route)
-app.use("/api/pets", petRoutes)
-app.use("/api/vaccinations", vaccinationRoutes)
-app.use("/api/vet-appointments", vetAppointmentRoutes)
-app.use("/api/expenses", expenseRoutes)
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/insurance", insuranceRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/activities", activitiesRoutes);
-app.use("/api/health", healthRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/ai", aiRoutes)
-app.use("/api/nutrition", mealRouter)
-app.use("/api/posts", postsRoutes);
-app.use("/api/playdates", playdatesRoutes);
-app.use("/api/notifications", notificationsRoutes);
+app.use("/auth", _route)
+app.use("/pets", petRoutes)
+app.use("/vaccinations", vaccinationRoutes)
+app.use("/vet-appointments", vetAppointmentRoutes)
+app.use("/expenses", expenseRoutes)
+app.use("/dashboard", dashboardRoutes);
+app.use("/insurance", insuranceRoutes);
+app.use("/admin", adminRoutes);
+app.use("/activities", activitiesRoutes);
+app.use("/health", healthRoutes);
+app.use("/users", userRoutes);
+app.use("/ai", aiRoutes)
+app.use("/nutrition", mealRouter)
+app.use("/posts", postsRoutes);
+app.use("/playdates", playdatesRoutes);
+app.use("/notifications", notificationsRoutes);
 
 cron.schedule("0 * * * *", () => {
   expireOldPlaydates();
