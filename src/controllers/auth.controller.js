@@ -10,6 +10,12 @@ export const signup = async (req, res) => {
                 message: "The name, email, password, phone fields are required"
             })
         }
+        if(password.length < 6){
+            return res.status(400).json({
+                success: false,
+                message: "Password may contain atleast 6 characters"
+            })
+        }
         if (role && !["admin", "user"].includes(role)) {
             return res.status(400).send({
                 status: false,
