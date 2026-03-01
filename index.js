@@ -29,7 +29,10 @@ dotenv.config()
 const app = express()
 
 app.use(cors({
-  origin: "https://pet-care-client-fawn.vercel.app/",
+  origin: [
+    "https://pet-care-client-fawn.vercel.app",
+    "http://localhost:5173"
+  ],
   credentials: true
 }));
 app.use(express.json())
@@ -56,14 +59,14 @@ cron.schedule("0 * * * *", () => {
 });
 
 const startServer = async () => {
-    const isDBConnected = await checkDBConnection()
-    if (!isDBConnected) {
-        console.log("Server not started due to DB connection failure")
-        process.exit(1)
-    }
-    const PORT = process.env.PORT || 7777
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    })
+  const isDBConnected = await checkDBConnection()
+  if (!isDBConnected) {
+    console.log("Server not started due to DB connection failure")
+    process.exit(1)
+  }
+  const PORT = process.env.PORT || 7777
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  })
 }
 startServer()
