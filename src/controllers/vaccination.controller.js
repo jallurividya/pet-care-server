@@ -1,16 +1,22 @@
 import { supabase } from "../config/SupabaseConfig.js";
 
-// POST /api/vaccinations
 
 export const createVaccination = async (req, res) => {
   try {
-    const { pet_id, vaccine_name, given_date, next_due_date, reminder_sent } = req.body;
+    const {
+      pet_id,
+      vaccine_name,
+      given_date,
+      next_due_date,
+      reminder_sent,
+    } = req.body;
 
     if (!pet_id || !vaccine_name || !given_date) {
-      return res.status(400).json({ message: "pet_id, vaccine_name and given_date are required" });
+      return res.status(400).json({
+        message: "pet_id, vaccine_name and given_date are required",
+      });
     }
 
-    // Verify that the pet belongs to logged-in user
     const { data: pet, error: petError } = await supabase
       .from("pets")
       .select("*")
@@ -18,25 +24,41 @@ export const createVaccination = async (req, res) => {
       .eq("user_id", req.user.id)
       .single();
 
-    if (petError) return res.status(403).json({ message: "Unauthorized or pet not found" });
+    if (petError)
+      return res.status(403).json({
+        message: "Unauthorized or pet not found",
+      });
 
     const { data, error } = await supabase
       .from("vaccinations")
       .insert([
-        { pet_id, vaccine_name, given_date, next_due_date, reminder_sent: reminder_sent || false }
+        {
+          pet_id,
+          vaccine_name,
+          given_date,
+          next_due_date,
+          reminder_sent: reminder_sent || false,
+          completed: false,
+        },
       ])
-      .select();
+      .select(`
+        *,
+        pets(id, name)
+      `)
+      .single();
 
     if (error) throw error;
 
-    res.status(201).json({ message: "Vaccination added", vaccination: data[0] });
+    res.status(201).json({
+      message: "Vaccination added",
+      vaccination: data,
+    });
 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// GET /api/vaccinations
 
 export const getVaccinations = async (req, res) => {
   try {
@@ -44,7 +66,7 @@ export const getVaccinations = async (req, res) => {
       .from("vaccinations")
       .select(`
         *,
-        pets(id, name)
+        pets!inner(id, name, user_id)
       `)
       .eq("pets.user_id", req.user.id);
 
@@ -56,8 +78,6 @@ export const getVaccinations = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// GET /api/vaccinations/:id
 
 export const getSingleVaccination = async (req, res) => {
   try {
@@ -83,8 +103,6 @@ export const getSingleVaccination = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// PUT /api/vaccinations/:id
 
 export const updateVaccination = async (req, res) => {
   try {
@@ -116,8 +134,6 @@ export const updateVaccination = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// DELETE /api/vaccinations/:id
 
 export const deleteVaccination = async (req, res) => {
   try {

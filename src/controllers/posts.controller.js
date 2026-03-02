@@ -1,8 +1,5 @@
 import { supabase } from "../config/SupabaseConfig.js";
 
-/* =========================================================
-   CREATE POST
-========================================================= */
 export const createPost = async (req, res) => {
   try {
     const { content, image_url } = req.body;
@@ -23,22 +20,37 @@ export const createPost = async (req, res) => {
         image_url,
         created_at,
         likes_count,
-        comments_count
+        comments_count,
+        user_id,
+        app_users!inner (
+          name
+        )
       `)
       .single();
 
     if (error) throw error;
 
-    return res.status(201).json(data);
+    // 🔥 Format same as getFeed
+    const formatted = {
+      id: data.id,
+      content: data.content,
+      image_url: data.image_url,
+      created_at: data.created_at,
+      likes_count: data.likes_count ?? 0,
+      comments_count: data.comments_count ?? 0,
+      username: data.app_users?.name ?? "Unknown",
+      is_liked: false, // new post can't be liked yet
+      user_id: data.user_id,
+    };
+
+    return res.status(201).json(formatted);
+
   } catch (error) {
     console.error("Create Post Error:", error);
     return res.status(500).json({ message: "Failed to create post" });
   }
 };
 
-/* =========================================================
-   GET FEED
-========================================================= */
 export const getFeed = async (req, res) => {
   try {
     const user_id = req.user.id;
@@ -94,9 +106,6 @@ export const getFeed = async (req, res) => {
   }
 };
 
-/* =========================================================
-   LIKE POST
-========================================================= */
 export const likePost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -132,9 +141,6 @@ export const likePost = async (req, res) => {
   }
 };
 
-/* =========================================================
-   UNLIKE POST
-========================================================= */
 export const unlikePost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -159,9 +165,7 @@ export const unlikePost = async (req, res) => {
   }
 };
 
-/* =========================================================
-   ADD COMMENT
-========================================================= */
+
 export const addComment = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -193,8 +197,6 @@ export const addComment = async (req, res) => {
 
     if (error) throw error;
 
-    // Trigger handles comments_count automatically
-
     return res.status(201).json(comment);
   } catch (error) {
     console.error("Add Comment Error:", error);
@@ -202,9 +204,6 @@ export const addComment = async (req, res) => {
   }
 };
 
-/* =========================================================
-   DELETE COMMENT
-========================================================= */
 export const deleteComment = async (req, res) => {
   try {
     const { commentId } = req.params;
@@ -231,8 +230,6 @@ export const deleteComment = async (req, res) => {
 
     if (deleteError) throw deleteError;
 
-    // Trigger handles comments_count decrement
-
     return res.json({ message: "Comment deleted successfully" });
   } catch (error) {
     console.error("Delete Comment Error:", error);
@@ -240,9 +237,6 @@ export const deleteComment = async (req, res) => {
   }
 };
 
-/* =========================================================
-   GET POST COMMENTS
-========================================================= */
 export const getPostComments = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -267,9 +261,6 @@ export const getPostComments = async (req, res) => {
   }
 };
 
-/* =========================================================
-   DELETE POST
-========================================================= */
 export const deletePost = async (req, res) => {
   try {
     const { postId } = req.params;

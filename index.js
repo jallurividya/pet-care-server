@@ -15,7 +15,6 @@ import activitiesRoutes from "./src/routes/activities.routes.js"
 import healthRoutes from "./src/routes/health.routes.js"
 import userRoutes from "./src/routes/user.routes.js"
 import aiRoutes from "./src/routes/ai.routes.js"
-import mealRouter from "./src/routes/meal.routes.js"
 import postsRoutes from "./src/routes/posts.routes.js";
 import playdatesRoutes from "./src/routes/playdates.routes.js";
 import notificationsRoutes from "./src/routes/notifications.routes.js";
@@ -49,7 +48,6 @@ app.use("/activities", activitiesRoutes);
 app.use("/health", healthRoutes);
 app.use("/users", userRoutes);
 app.use("/ai", aiRoutes)
-app.use("/nutrition", mealRouter)
 app.use("/posts", postsRoutes);
 app.use("/playdates", playdatesRoutes);
 app.use("/notifications", notificationsRoutes);

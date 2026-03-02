@@ -9,6 +9,7 @@ export const getNotifications = async (req, res) => {
       .from("notifications")
       .select("*")
       .eq("user_id", user_id)
+      .eq("is_read", false)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -29,7 +30,7 @@ export const markAsRead = async (req, res) => {
 
     const { error } = await supabase
       .from("notifications")
-      .update({ is_read: true })
+      .update({ is_read: false })
       .eq("id", notificationId)
       .eq("user_id", user_id);
 

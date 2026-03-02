@@ -22,6 +22,7 @@ export const createPlaydate = async (req, res) => {
 
 
 // ✅ Get All Playdates
+// controllers/playdate.controller.js
 export const getPlaydates = async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -33,13 +34,21 @@ export const getPlaydates = async (req, res) => {
         location,
         event_date,
         created_at,
-        host_id
+        host_id,
+        status,
+        playdate_rsvps!inner(id)   -- join with RSVPs
       `)
       .order("event_date", { ascending: true });
 
     if (error) throw error;
 
-    res.json(data);
+    // Map data to include RSVP count
+    const playdatesWithCount = data.map(p => ({
+      ...p,
+      rsvp_count: p.playdate_rsvps?.length || 0
+    }));
+
+    res.json(playdatesWithCount);
 
   } catch (err) {
     console.error("Get Playdates Error:", err);
@@ -56,7 +65,7 @@ export const rsvpPlaydate = async (req, res) => {
     const { playdateId } = req.params;
     const user_id = req.user.id;
 
-    // 🔍 Check duplicate RSVP
+    // Check duplicate RSVP
     const { data: existing } = await supabase
       .from("playdate_rsvps")
       .select("id")
@@ -68,30 +77,19 @@ export const rsvpPlaydate = async (req, res) => {
       return res.status(400).json({ message: "Already joined this playdate" });
     }
 
-    // ✅ Insert RSVP
-    const { error } = await supabase
+    // Insert RSVP
+    const { error: insertError } = await supabase
       .from("playdate_rsvps")
       .insert([{ playdate_id: playdateId, user_id }]);
+    if (insertError) throw insertError;
 
-    if (error) throw error;
+    // Count RSVPs
+    const { count } = await supabase
+      .from("playdate_rsvps")
+      .select("id", { count: "exact" })
+      .eq("playdate_id", playdateId);
 
-    // 🔔 Get host
-    const { data: playdate } = await supabase
-      .from("playdates")
-      .select("host_id")
-      .eq("id", playdateId)
-      .single();
-
-    if (playdate.host_id !== user_id) {
-      await supabase.from("notifications").insert([{
-        user_id: playdate.host_id,
-        type: "rsvp",
-        reference_id: playdateId,
-        message: "Someone joined your playdate"
-      }]);
-    }
-
-    res.json({ message: "RSVP successful" });
+    res.json({ message: "RSVP successful", rsvp_count: count });
 
   } catch (err) {
     res.status(500).json({ message: err.message });
