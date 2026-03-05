@@ -1,5 +1,5 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { authMiddleware, roleMiddleware } from "../middlewares/auth.middleware.js";
 import {
   createPost,
   getFeed,
@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-router.post("/", createPost);
+router.post("/",roleMiddleware("user"), createPost);
 router.get("/feed", getFeed); 
 router.post("/:postId/like", likePost); 
 router.post("/:postId/comment", addComment); 
