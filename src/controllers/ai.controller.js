@@ -45,7 +45,7 @@ Include:
 
 Return only the diet plan.
 `;
-
+console.log("Gemini API Key Exists:", !!process.env.GEMINI_API_KEY);
     const response = await openai.chat.completions.create({
       model: "gemini-2.5-flash",
       messages: [
