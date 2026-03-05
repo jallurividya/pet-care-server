@@ -16,9 +16,8 @@ router.use(authMiddleware);
 
 router.post("/", createVetAppointment);
 router.get("/", getVetAppointments);
+router.get("/emergency-vets", getNearbyEmergencyVets);
 router.get("/:id", getSingleVetAppointment);
 router.put("/:id", updateVetAppointment);
 router.delete("/:id", deleteVetAppointment);
-router.get("/", getNearbyEmergencyVets);
-
 export default router;

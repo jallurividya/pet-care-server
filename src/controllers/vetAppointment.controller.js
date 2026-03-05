@@ -189,30 +189,46 @@ export const deleteVetAppointment = async (req, res) => {
   }
 };
 
-
 export const getNearbyEmergencyVets = async (req, res) => {
   try {
-    const { lat, lng } = req.query; // latitude & longitude
+    const { lat, lng } = req.query;
 
-    if (!lat || !lng) return res.status(400).json({ message: "Latitude and longitude required" });
+    if (!lat || !lng) {
+      return res.status(400).json({
+        message: "Latitude and longitude required",
+      });
+    }
 
-    // Example: Using Google Places API (replace with your API key)
     const response = await axios.get(
-      `https://nominatim.openstreetmap.org/search.php?q=veterinary+near+{lat},{lng}&format=jsonv2`
+      "https://nominatim.openstreetmap.org/search",
+      {
+        params: {
+          q: "veterinary",
+          format: "json",
+          limit: 10,
+          lat: lat,
+          lon: lng
+        },
+        headers: {
+          "User-Agent": "pet-care-app",
+        },
+      }
     );
 
-    const vets = response.data.results.map((vet) => ({
-      name: vet.name,
-      address: vet.vicinity,
-      rating: vet.rating,
-      user_ratings_total: vet.user_ratings_total,
-      location: vet.geometry.location,
-      place_id: vet.place_id,
+    const vets = response.data.map((vet) => ({
+      name: vet.display_name.split(",")[0],
+      address: vet.display_name,
+      lat: vet.lat,
+      lon: vet.lon,
     }));
 
     res.json({ vets });
   } catch (error) {
-    console.error("Error fetching emergency vets:", error.message);
-    res.status(500).json({ message: "Failed to fetch nearby vets" });
+    console.error("Emergency vet error:", error.message);
+
+    res.status(500).json({
+      message: "Failed to fetch nearby vets",
+      error: error.message,
+    });
   }
 };
