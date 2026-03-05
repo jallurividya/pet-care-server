@@ -22,6 +22,7 @@ export const getDietSuggestion = async (req, res) => {
         message: "Species, breed, weight and dob are required"
       });
     }
+    console.log("Gemini API Key Exists:", !!process.env.GEMINI_API_KEY);
 
     const age = calculateAge(dob);
 
@@ -45,7 +46,7 @@ Include:
 
 Return only the diet plan.
 `;
-console.log("Gemini API Key Exists:", !!process.env.GEMINI_API_KEY);
+
     const response = await openai.chat.completions.create({
       model: "gemini-2.5-flash",
       messages: [
